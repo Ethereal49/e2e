@@ -1453,6 +1453,10 @@ export const readSemanticsFunction = <Mode extends SemanticMode>(
     if (truncated) return;
     const tag = el.tagName.toLowerCase();
     if (SKIP_TAGS.indexOf(tag) !== -1) return;
+    // Next's title echo depends on hydration timing, not on the action's outcome.
+    const parentNode = el.parentNode;
+    const routeAnnouncer = el.id === '__next-route-announcer__' && el.getAttribute('role') === 'alert' &&
+      parentNode instanceof ShadowRoot && parentNode.host.localName === 'next-route-announcer';
     // Read once and share: `isHidden` and the empty-box test both need it, and
     // this walk already pays one `getComputedStyle` per node.
     const style = styleOf(el);
@@ -1484,7 +1488,7 @@ export const readSemanticsFunction = <Mode extends SemanticMode>(
     let nextParent = parent;
     // An empty painted rectangle carries no semantics to be "interesting" by and
     // is still something a person sees and aims at; `roleOf` names it `box`.
-    if (!hidden && (isInteresting(el) || isVisibleEmptyBox(el))) {
+    if (!routeAnnouncer && !hidden && (isInteresting(el) || isVisibleEmptyBox(el))) {
       if (nodes.length >= maxNodes) {
         truncated = true;
         return;

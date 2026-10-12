@@ -3,6 +3,26 @@
 import { constant, type PageRenderer } from './page.ts';
 
 export const LIVE_PAGES: Record<string, PageRenderer> = {
+  // The App Router's shadow live region can echo a title independently of
+  // the result. Business alerts with that title must still gate replay.
+  '/route-announcer': (_state, url) => `<!doctype html>
+<title>Acme Notes</title>
+<main><p data-testid="draft">Draft notes</p><a href="/library">Library</a></main>
+<next-route-announcer></next-route-announcer>
+<script>
+  const variant = ${JSON.stringify(url.searchParams.get('variant'))};
+  const announcer = document.querySelector('next-route-announcer').attachShadow({ mode: 'open' });
+  announcer.innerHTML = '<div id="__next-route-announcer__" role="alert" aria-live="assertive" style="position:absolute;width:1px;height:1px;overflow:hidden"></div>';
+  document.querySelector('a').addEventListener('click', (event) => {
+    event.preventDefault();
+    history.pushState({}, '', variant === 'wrong-route' ? '/settings' : '/library');
+    document.querySelector('main').innerHTML = '<h1>Library</h1><p data-testid="notes">' +
+      (variant === 'missing-result' ? 'No notes' : 'Meeting notes') + '</p>' +
+      (variant === 'kept-draft' ? '<p data-testid="draft">Draft notes</p>' : '') +
+      (variant === 'app-alert' ? '<div role="alert" id="__next-route-announcer__" data-testid="app-alert">Acme Notes</div>' : '');
+    if (variant !== 'silent') announcer.firstElementChild.textContent = document.title;
+  });
+</script>`,
   // Two identically named fields on a page whose layout keeps moving, the way a
   // lazily-loaded banner or an expanding summary shifts a booking form under the
   // cursor. Every node keeps its identity while its rectangle drifts between the
