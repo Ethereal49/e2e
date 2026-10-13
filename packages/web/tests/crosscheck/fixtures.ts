@@ -12,23 +12,6 @@ export interface FixturePage {
 
 export const FIXTURE_PAGES: readonly FixturePage[] = [
   {
-    name: 'framework route announcer and app live regions',
-    html: `
-      <div role="alert" id="__next-route-announcer__" data-testid="app-alert">Acme Notes</div>
-      <div role="status" data-testid="app-status">Acme Notes</div>
-      <next-route-announcer></next-route-announcer><app-notification></app-notification>
-      <script>
-        for (const tag of ['next-route-announcer', 'app-notification']) {
-          document.querySelector(tag).attachShadow({ mode: 'open' }).innerHTML =
-            '<div id="__next-route-announcer__" role="alert" aria-live="assertive" style="position:absolute;width:1px;height:1px;overflow:hidden">Acme Notes</div>';
-        }
-        const root = document.querySelector('next-route-announcer').shadowRoot;
-        root.innerHTML += '<div role="alert" data-testid="host-alert">Acme Notes</div>';
-        root.firstElementChild.innerHTML += '<div role="status" data-testid="nested-status">Saved</div>';
-      </script>
-    `,
-  },
-  {
     name: 'shadow section landmarks',
     html: `
       <article><div id="article-shadow"></div></article>

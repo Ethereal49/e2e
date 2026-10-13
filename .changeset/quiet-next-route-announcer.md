@@ -2,4 +2,4 @@
 "@e2e-dev/web": patch
 ---
 
-Omit the Next.js App Router route announcer from semantic observations so its hydration-dependent title echo cannot become a replay outcome anchor. App alerts and status messages remain checked, including those with the same text as the page title. Re-record older cache entries that contain the framework alert without `--strict-cache`.
+The web engine no longer observes Next.js App Router's route announcer, so its hydration-timed title echo cannot stop a replay. Older entries that recorded it re-record on the next read-write run.

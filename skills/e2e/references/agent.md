@@ -276,10 +276,9 @@ matches. Misses and hand-offs use the model; `agent.assert`,
   every control that appeared (with its checked or selected state) is
   there, every one that went away is gone, at least one of those changed
   during the replay, and no new alert showed; otherwise the agent takes
-  over mid-step. The web engine omits Next.js App Router's framework route
-  announcer, but keeps app alerts and status messages with the same title
-  text. Re-record older entries that contain the framework alert without
-  `--strict-cache`. Entries are keyed per agent and per `agentContext`. `step.cache.reason` says why: `no-entry`,
+  over mid-step. The web engine does not observe Next.js App Router's route
+  announcer, so its title echo never counts. Entries are keyed per agent and
+  per `agentContext`. `step.cache.reason` says why: `no-entry`,
   `wrong-context`, `target-not-found`, `target-ambiguous`, `end-mismatch`,
   and so on.
 - A step recording no actions, or changing nothing on screen or in the

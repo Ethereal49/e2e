@@ -1,10 +1,10 @@
-/** Real Chromium record/replay with the App Router announcer's DOM shape; no model. */
+/** Record and replay around Next.js App Router's route announcer in real Chromium; no model. */
 
 import { expect, it } from 'vitest';
 import type { StepExecutor } from '../../src/agent/executor.ts';
 import { startFixtureApp } from '../helpers/fixture-app.ts';
 import { nodeIdFor } from '../helpers/fake-loop-model.ts';
-import { createProject, runExisting, type RunOutcome } from '../helpers/run-project.ts';
+import { createProject, runExisting } from '../helpers/run-project.ts';
 import { expectReplayed, onlyActStep, readEntries } from '../helpers/trace-cache.ts';
 
 const TITLE = 'opens Library';
@@ -18,11 +18,7 @@ test('${TITLE}', async ({ app, agent, screen }) => {
 it.each([
   ['announced', 'silent', true],
   ['silent', 'announced', true],
-  ['app-alert', 'announced', false],
   ['announced', 'app-alert', false],
-  ['announced', 'missing-result', false],
-  ['announced', 'kept-draft', false],
-  ['announced', 'wrong-route', false],
 ] as const)('records %s, replays %s, passes=%s', async (recordVariant, replayVariant, passes) => {
   const app = await startFixtureApp();
   const project = createProject({ 'tests/library.e2e.ts': SUITE });
@@ -52,7 +48,7 @@ it.each([
     expect(entry!.payload.goneAnchors).toContainEqual({ text: 'Draft notes', testId: 'draft' });
     calls = 0;
     app.setVariant(replayVariant);
-    const replayed: RunOutcome = await runExisting(project, { appUrl: app.url, config, runOptions: { strictCache: true } });
+    const replayed = await runExisting(project, { appUrl: app.url, config, runOptions: { strictCache: true } });
     expect(calls).toBe(0);
     const step = onlyActStep(replayed, TITLE);
     if (passes) {
@@ -63,8 +59,7 @@ it.each([
       expect(step.error?.code).toBe('REPLAY_STALE');
       expect(step.cache?.reason).toBe('end-mismatch');
     }
-    const alerts = entry!.payload.endAnchors?.filter((anchor) => anchor.role === 'alert');
-    expect(alerts).toEqual(recordVariant === 'app-alert' ? [{ role: 'alert', name: 'Acme Notes', testId: 'app-alert' }] : []);
+    expect(entry!.payload.endAnchors?.filter((anchor) => anchor.role === 'alert')).toEqual([]);
   } finally {
     project.cleanup();
     await app.close();

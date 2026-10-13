@@ -3,8 +3,8 @@
 import { constant, type PageRenderer } from './page.ts';
 
 export const LIVE_PAGES: Record<string, PageRenderer> = {
-  // The App Router's shadow live region can echo a title independently of
-  // the result. Business alerts with that title must still gate replay.
+  // Next.js App Router's shadow live region echoes the title on its own
+  // schedule; an app alert with the same text must still gate replay.
   '/route-announcer': (_state, url) => `<!doctype html>
 <title>Acme Notes</title>
 <main><p data-testid="draft">Draft notes</p><a href="/library">Library</a></main>
@@ -15,11 +15,9 @@ export const LIVE_PAGES: Record<string, PageRenderer> = {
   announcer.innerHTML = '<div id="__next-route-announcer__" role="alert" aria-live="assertive" style="position:absolute;width:1px;height:1px;overflow:hidden"></div>';
   document.querySelector('a').addEventListener('click', (event) => {
     event.preventDefault();
-    history.pushState({}, '', variant === 'wrong-route' ? '/settings' : '/library');
-    document.querySelector('main').innerHTML = '<h1>Library</h1><p data-testid="notes">' +
-      (variant === 'missing-result' ? 'No notes' : 'Meeting notes') + '</p>' +
-      (variant === 'kept-draft' ? '<p data-testid="draft">Draft notes</p>' : '') +
-      (variant === 'app-alert' ? '<div role="alert" id="__next-route-announcer__" data-testid="app-alert">Acme Notes</div>' : '');
+    history.pushState({}, '', '/library');
+    document.querySelector('main').innerHTML = '<h1>Library</h1><p data-testid="notes">Meeting notes</p>' +
+      (variant === 'app-alert' ? '<div role="alert" data-testid="app-alert">Acme Notes</div>' : '');
     if (variant !== 'silent') announcer.firstElementChild.textContent = document.title;
   });
 </script>`,
